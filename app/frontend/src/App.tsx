@@ -21,9 +21,18 @@ function App() {
     const [selectedFile, setSelectedFile] = useState<GroundingFile | null>(null);
 
     const { startSession, addUserAudio, inputAudioBufferClear } = useRealTime({
-        onWebSocketOpen: () => console.log("WebSocket connection opened"),
-        onWebSocketClose: () => console.log("WebSocket connection closed"),
-        onWebSocketError: event => console.error("WebSocket error:", event),
+        onWebSocketOpen: () => {
+            console.log("WebSocket connection opened");
+            alert("WebSocket connection opened");
+        },
+        onWebSocketClose: () => {
+            console.log("WebSocket connection closed");
+            alert("WebSocket connection closed");
+        },
+        onWebSocketError: event => {
+            console.error("WebSocket error:", event);
+            alert("WebSocket error: " + event);
+        },
         onReceivedError: message => console.error("error", message),
         onReceivedResponseAudioDelta: message => {
             isRecording && playAudio(message.delta);
@@ -39,7 +48,8 @@ function App() {
             });
 
             setGroundingFiles(prev => [...prev, ...files]);
-        }
+        },
+        useNetBackend: true
     });
 
     const { reset: resetAudioPlayer, play: playAudio, stop: stopAudioPlayer } = useAudioPlayer();

@@ -14,6 +14,7 @@ import {
 
 type Parameters = {
     useDirectAoaiApi?: boolean; // If true, the middle tier will be skipped and the AOAI ws API will be called directly
+    useNetBackend?: boolean; // If true, the front end app will point to the .net backend implementation of the middle tier
     aoaiEndpointOverride?: string;
     aoaiApiKeyOverride?: string;
     aoaiModelOverride?: string;
@@ -35,6 +36,7 @@ type Parameters = {
 
 export default function useRealTime({
     useDirectAoaiApi,
+    useNetBackend,
     aoaiEndpointOverride,
     aoaiApiKeyOverride,
     aoaiModelOverride,
@@ -52,8 +54,8 @@ export default function useRealTime({
     onReceivedError
 }: Parameters) {
     const wsEndpoint = useDirectAoaiApi
-        ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
-        : `/realtime`;
+    ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
+    : useNetBackend ? `https://localhost:7106/realtime` : '/realtime'; // useNetBackend = true call the .net implementation of the middle tier
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {
         onOpen: () => onWebSocketOpen?.(),

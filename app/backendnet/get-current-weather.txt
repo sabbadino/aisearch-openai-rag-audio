@@ -1,0 +1,1 @@
+returns the current weather given a town or region name. Do not make up names for the location!

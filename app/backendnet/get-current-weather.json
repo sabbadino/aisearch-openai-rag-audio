@@ -1,0 +1,13 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "Location"
+  ],
+  "properties": {
+    "location": {
+      "type": "string",
+      "description": "The location (town or region) name. fill location information with information only, don't put the country. If you know the translation in english of the location provide to the call the english translated version. IMPORTANT : Assistant must ask the user a value for location. If not provided in the conversation, Assistant must not not make up one. Assistant MUST 1) ask for confirmation about the location before doing the call 2) wait for user confirmation 3) if and only if the user confirm the location do the call"
+    }
+  }
+}
