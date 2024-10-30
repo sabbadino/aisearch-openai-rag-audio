@@ -180,5 +180,6 @@ Add in secrets file
   "AZURE_OPENAI_DEPLOYMENT": "<your-deplyment-name>", 
   "AZURE_OPENAI_API_KEY": "<your-api-key>" 
 } 
-<pre> 
+</pre> 
+
 The registred function call is get_current_weather (no mock data, it connects to a "real" weather api)
