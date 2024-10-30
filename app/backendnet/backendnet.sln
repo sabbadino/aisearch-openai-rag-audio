@@ -3,7 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35222.181
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backendnet", "backendnet.csproj", "{A1743B0E-51A0-465F-808C-8C4C442D0DDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "backendnet", "backendnet.csproj", "{A1743B0E-51A0-465F-808C-8C4C442D0DDA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Information", "Information", "{D95AD12A-56D9-4DEC-ABA2-29B542A170C2}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\README.md = ..\..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,16 +20,9 @@ Global
 		{A1743B0E-51A0-465F-808C-8C4C442D0DDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1743B0E-51A0-465F-808C-8C4C442D0DDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1743B0E-51A0-465F-808C-8C4C442D0DDA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1D73178F-3338-4730-BAD8-79EBB7C4DA46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1D73178F-3338-4730-BAD8-79EBB7C4DA46}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1D73178F-3338-4730-BAD8-79EBB7C4DA46}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1D73178F-3338-4730-BAD8-79EBB7C4DA46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{1D73178F-3338-4730-BAD8-79EBB7C4DA46} = {285B64DC-2554-40E6-86B9-2A3CA5B11CF0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2D62BD37-A13A-49FF-8E4F-0A1946488DAD}

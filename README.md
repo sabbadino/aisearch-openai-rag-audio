@@ -1,3 +1,18 @@
+### Using the .NET backend app
+to activate net backend makes sure that 
+ useNetBackend: true is set in app\frontend\src\App.tsx -> function App() ..
+
+Add in secrets file 
+<pre>
+{
+  "AZURE_OPENAI_ENDPOINT": "<your-endpoint>", 
+  "AZURE_OPENAI_DEPLOYMENT": "<your-deplyment-name>", 
+  "AZURE_OPENAI_API_KEY": "<your-api-key>" 
+} 
+</pre> 
+
+The registred function call is get_current_weather (no mock data, it connects to a "real" weather api)
+
 # VoiceRAG: An Application Pattern for RAG + Voice Using Azure AI Search and the GPT-4o Realtime API for Audio
 
 [![Open in GitHub Codespaces](https://img.shields.io/static/v1?style=for-the-badge&label=GitHub+Codespaces&message=Open&color=brightgreen&logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&skip_quickstart=true&machine=basicLinux32gb&repo=860141324&devcontainer_path=.devcontainer%2Fdevcontainer.json&geo=WestUs2)
@@ -168,18 +183,3 @@ This template uses [Managed Identity](https://learn.microsoft.com/entra/identity
 ### Notes
 
 >Sample data: The PDF documents used in this demo contain information generated using a language model (Azure OpenAI Service). The information contained in these documents is only for demonstration purposes and does not reflect the opinions or beliefs of Microsoft. Microsoft makes no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability or availability with respect to the information contained in this document. All rights reserved to Microsoft.
-
-### Using the .NET backend app
-to activate net backend makes sure that 
- useNetBackend: true is set in app\frontend\src\App.tsx -> function App() ..
-
-Add in secrets file 
-<pre>
-{
-  "AZURE_OPENAI_ENDPOINT": "<your-endpoint>", 
-  "AZURE_OPENAI_DEPLOYMENT": "<your-deplyment-name>", 
-  "AZURE_OPENAI_API_KEY": "<your-api-key>" 
-} 
-</pre> 
-
-The registred function call is get_current_weather (no mock data, it connects to a "real" weather api)
