@@ -47,7 +47,7 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
         realtimeClientEventSessionUpdate.Session.Instructions = File.ReadAllText($"systemMessage-{_realTimeAudioSettings.SystemMessageName}.txt");
         realtimeClientEventSessionUpdate.Session.Temperature = Convert.ToDecimal(_realTimeAudioSettings.Temperature);
         realtimeClientEventSessionUpdate.Session.MaxResponseOutputTokens = _realTimeAudioSettings.MaxResponseOutputTokens;
-        realtimeClientEventSessionUpdate.Session.ToolChoice = "alloy";
+        realtimeClientEventSessionUpdate.Session.ToolChoice = "auto";
         realtimeClientEventSessionUpdate.Session.Voice = "shimmer";
         realtimeClientEventSessionUpdate.Session.Tools =
         [
