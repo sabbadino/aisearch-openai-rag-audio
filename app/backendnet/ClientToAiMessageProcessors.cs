@@ -29,7 +29,7 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
         NullValueHandling = NullValueHandling.Ignore
     };
 
-byte[] ClientToAiProcessMessage(JObject message)
+    byte[] ClientToAiProcessMessage(JObject message)
     {
         var type = message["type"]?.Value<string>();
         switch (type)
@@ -43,7 +43,7 @@ byte[] ClientToAiProcessMessage(JObject message)
     private byte[] HandleSessionUpdate(JObject message)
     {
         var functionName = "get-current-weather";
-        var realtimeClientEventSessionUpdate = message.ToObject<RealtimeClientEventSessionUpdate>()??new();
+        var realtimeClientEventSessionUpdate = message.ToObject<RealtimeClientEventSessionUpdate>() ?? new();
         realtimeClientEventSessionUpdate.Session.Instructions = File.ReadAllText($"systemMessage-{_realTimeAudioSettings.SystemMessageName}.txt");
         realtimeClientEventSessionUpdate.Session.Temperature = Convert.ToDecimal(_realTimeAudioSettings.Temperature);
         realtimeClientEventSessionUpdate.Session.MaxResponseOutputTokens = _realTimeAudioSettings.MaxResponseOutputTokens;
@@ -71,7 +71,7 @@ byte[] ClientToAiProcessMessage(JObject message)
         if (receiveResult.MessageType == WebSocketMessageType.Close)
         {
             // ack the close to the client
-            await communicationContext.ClientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "client sent close request",CancellationToken.None);
+            await communicationContext.ClientWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "client sent close request", CancellationToken.None);
             // Send close to server
             if (communicationContext.AiWebSocket.State == WebSocketState.Open)
             {
@@ -112,6 +112,6 @@ byte[] ClientToAiProcessMessage(JObject message)
             }
             return true;
         }
-        return true;   
+        return true;
     }
 }

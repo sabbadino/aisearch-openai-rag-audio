@@ -45,22 +45,17 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 Console.WriteLine(message.ToString());
                 break;
             case "response.function_call_arguments.delta":
-                return null;
             case "response.function_call_arguments.done":
                 return null;
-
             case "response.output_item.done":
                 await HandleResponseOutputItemAdded(message, communicationContext);
                 break;
             case "response.output_item.added":
                 if (HandleResponseOutputItemAdded(message)) return null;
                 break;
-
             case "response.done":
                 await HandleResponseDone(message, communicationContext);
-
                 break;
-
             case "conversation.item.created":
                 if (HandleConversationItemCreated(message)) return null;
                 break;
@@ -68,9 +63,6 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 HandleSessionCreated(message);
                 break;
             case "session.error":
-                break;
-            default:
-                // do nothing , pass through
                 break;
         }
         return Utf8Encoding.GetBytes(message.ToString());
