@@ -51,7 +51,7 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
         realtimeClientEventSessionUpdate.Session.Voice = "shimmer";
         realtimeClientEventSessionUpdate.Session.Tools =
         [
-            new()
+            new RealtimeClientEventSessionUpdateSessionTools
             {
                 Description = File.ReadAllText($"{functionName}.txt"),
                 Name = functionName ,
@@ -95,23 +95,20 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
         buffer = ms.ToArray();
 
         var jObject = _messageParser.GetJson(buffer, buffer.Length);
-        if (jObject != null)
+        if (jObject == null) return true;
+        buffer = ClientToAiProcessMessage(jObject);
+        try
         {
-            buffer = ClientToAiProcessMessage(jObject);
-            try
-            {
-                await communicationContext.AiWebSocket.SendAsync(
-                    new ArraySegment<byte>(buffer, 0, buffer.Length),
-                    receiveResult.MessageType,
-                    receiveResult.EndOfMessage,
-                    CancellationToken.None);
+            await communicationContext.AiWebSocket.SendAsync(
+                new ArraySegment<byte>(buffer, 0, buffer.Length),
+                receiveResult.MessageType,
+                receiveResult.EndOfMessage,
+                CancellationToken.None);
 
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-            return true;
+        }
+        catch (Exception ex)
+        {
+            throw;
         }
         return true;
     }

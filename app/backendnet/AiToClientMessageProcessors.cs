@@ -35,7 +35,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
         PropertyNameCaseInsensitive = true,
     };
     private static readonly Encoding Utf8Encoding = Encoding.UTF8;
-    private Dictionary<string, RTToolCall> _tools_pending = new ();
+    private Dictionary<string, RttoolCall> _tools_pending = new ();
     async Task<byte[]?> AiToClientProcessMessage(JObject message,CommunicationContext communicationContext)
     {
         var type = message["type"]?.Value<string>();
@@ -89,7 +89,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 {
                     if (!_tools_pending.ContainsKey(callId))
                     {
-                        var v = new RTToolCall
+                        var v = new RttoolCall
                             { tool_call_id = callId, previous_id = message["previous_item_id"]?.Value<string>() ?? null };
                         _tools_pending.Add(callId, v);
                     }
@@ -97,7 +97,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
 
                 return true;
             }
-            else if (item1["type"]?.Value<string>() == "function_call_output")
+            if (item1["type"]?.Value<string>() == "function_call_output")
             {
                 return true;
             }
@@ -108,16 +108,16 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
 
     private async Task HandleResponseOutputItemAdded(JObject message, CommunicationContext communicationContext)
     {
-        if (message["item"] is { } itemd && itemd["type"]?.Value<string>() == "function_call")
+        if (message["item"] is { } item && item["type"]?.Value<string>() == "function_call")
         {
-            if (itemd["call_id"]?.Value<string>() is { } callId1)
+            if (item["call_id"]?.Value<string>() is { } callId1)
             {
                 if (_tools_pending.TryGetValue(callId1, out var rTToolCall))
                 {
-                    var toolName = itemd["name"]?.Value<string>();
+                    var toolName = item["name"]?.Value<string>();
                     if (toolName == "get-current-weather")
                     {
-                        if (itemd["arguments"]?.Value<string>() is { } args)
+                        if (item["arguments"]?.Value<string>() is { } args)
                         {
                             var input = JsonSerializer.Deserialize<GetCurrentWeatherRequest>(args, Opt);
                             if (input == null)
@@ -201,12 +201,12 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
             );
         }
 
-        if (message["response"] is { } responsew && responsew["output"] is JArray items)
+        if (message["response"] is { } response && response["output"] is JArray items)
         {
             var x= items.ToList();
-            x.RemoveAll(itemx =>
+            x.RemoveAll(item =>
             {
-                if (itemx["type"]?.Value<string>() is { } typex && typex == "function_call")
+                if (item["type"]?.Value<string>() is "function_call")
                 {
                     return true;
                 }
@@ -217,12 +217,12 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
 
     private static byte[] GenerateResponseCreate()
     {
-        var templatec = """
+        var responseCreateMessage = """
                         {
                            "type": "response.create"
                         }
                         """;
-        var buffer = Utf8Encoding.GetBytes(templatec);
+        var buffer = Utf8Encoding.GetBytes(responseCreateMessage);
         return buffer;
     }
 
@@ -245,7 +245,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
         return buffer;
     }
 
-    public class RTToolCall {
+    public class RttoolCall {
         public string tool_call_id { get; init; }
         public string? previous_id { get; init; }
     }
@@ -285,18 +285,15 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
         buffer = ms.ToArray();
 
         var jObject = _messageParser.GetJson(buffer, buffer.Length);
-        if (jObject != null)
+        if (jObject == null) return true;
+        buffer= await AiToClientProcessMessage(jObject,communicationContext);
+        if (buffer != null)
         {
-            buffer= await AiToClientProcessMessage(jObject,communicationContext);
-            if (buffer != null)
-            {
-                await communicationContext.ClientWebSocket.SendAsync(
-                    new ArraySegment<byte>(buffer, 0, buffer.Length),
-                    receiveResult.MessageType,
-                    receiveResult.EndOfMessage,
-                    CancellationToken.None);
-            }
-            return true;
+            await communicationContext.ClientWebSocket.SendAsync(
+                new ArraySegment<byte>(buffer, 0, buffer.Length),
+                receiveResult.MessageType,
+                receiveResult.EndOfMessage,
+                CancellationToken.None);
         }
         return true;
     }
