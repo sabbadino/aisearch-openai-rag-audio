@@ -1,5 +1,5 @@
 ### Using the .NET backend app
-to activate net backend makes sure that 
+To activate net backend makes sure that 
  useNetBackend: true is set in app\frontend\src\App.tsx -> function App() ..
 
 Add in secrets file 
