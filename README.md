@@ -174,10 +174,11 @@ to activate net backend makes sure that
  useNetBackend: true is set in app\frontend\src\App.tsx -> function App() ..
 
 Add in secrets file 
+<pre>
 {
-  "AZURE_OPENAI_ENDPOINT": "<your-endpoint>",
-  "AZURE_OPENAI_DEPLOYMENT": "<your-deplyment-name>",
-  "AZURE_OPENAI_API_KEY": "<your-api-key>",
+  "AZURE_OPENAI_ENDPOINT": "<your-endpoint>", 
+  "AZURE_OPENAI_DEPLOYMENT": "<your-deplyment-name>", 
+  "AZURE_OPENAI_API_KEY": "<your-api-key>" 
 } 
- 
+<pre> 
 The registred function call is get_current_weather (no mock data, it connects to a "real" weather api)
