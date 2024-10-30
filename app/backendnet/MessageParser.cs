@@ -1,5 +1,6 @@
 using Newtonsoft.Json.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 
 namespace backendnet;
@@ -7,6 +8,7 @@ namespace backendnet;
 public interface IMessageParser
 {
     JObject? GetJson(byte[] payload, int count);
+    string? GetCommandName(byte[] payload);
 }
 
 public class MessageParser : IMessageParser
@@ -42,4 +44,28 @@ public class MessageParser : IMessageParser
             throw;
         }
     }
+    public string? GetCommandName(byte[] payload)
+    {
+        var reader = new Utf8JsonReader(payload);
+        while (reader.Read())
+        {
+            JsonTokenType tokenType = reader.TokenType;
+            switch (tokenType)
+            {
+                case JsonTokenType.PropertyName:
+                    if (reader.ValueTextEquals("type"))
+                    {
+                        reader.Read();
+                        if (reader.TokenType == JsonTokenType.String)
+                        {
+                            return reader.GetString() ?? null;
+                        }
+                    }
+                    break;
+            }
+        }
+        return null;
+    }
+
+
 }

@@ -5,6 +5,8 @@ using Microsoft.Extensions.Options;
 using IO.Swagger.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace backendnet;
 
@@ -22,22 +24,29 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
     {
         _messageParser = messageParser;
         _realTimeAudioSettings = realTimeAudioSettings.Value;
+        _Handlers.Add("session.update", HandleSessionUpdate);
     }
 
     JsonSerializerSettings Opt = new JsonSerializerSettings
     {
         NullValueHandling = NullValueHandling.Ignore
     };
-
-    byte[] ClientToAiProcessMessage(JObject message)
+    private Dictionary<string, Func<JObject, byte[]>> _Handlers = new Dictionary<string, Func<JObject, byte[]>>();    
+    byte[]? ClientToAiProcessMessage(byte[] buffer)
     {
-        var type = message["type"]?.Value<string>();
-        switch (type)
-        {
-            case "session.update":
-                return HandleSessionUpdate(message);
+        var command = _messageParser.GetCommandName(buffer);
+        if (command == null) {
+            return null;
+        } 
+        if(_Handlers.TryGetValue(command, out var handler)) {
+            var message = _messageParser.GetJson(buffer, buffer.Length);
+            if (message != null)
+            {
+                return handler(message);
+            }
+            return buffer;    
         }
-        return Encoding.UTF8.GetBytes(message.ToString());
+        return buffer;
     }
 
     private byte[] HandleSessionUpdate(JObject message)
@@ -94,9 +103,8 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
 
         buffer = ms.ToArray();
 
-        var jObject = _messageParser.GetJson(buffer, buffer.Length);
-        if (jObject == null) return true;
-        buffer = ClientToAiProcessMessage(jObject);
+        
+        buffer = ClientToAiProcessMessage(buffer);
         try
         {
             await communicationContext.AiWebSocket.SendAsync(

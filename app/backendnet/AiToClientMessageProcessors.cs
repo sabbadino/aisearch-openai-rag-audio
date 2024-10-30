@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Net.WebSockets;
@@ -36,9 +37,29 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
     };
     private static readonly Encoding Utf8Encoding = Encoding.UTF8;
     private Dictionary<string, RttoolCall> _tools_pending = new ();
-    async Task<byte[]?> AiToClientProcessMessage(JObject message,CommunicationContext communicationContext)
+    async Task<byte[]?> AiToClientProcessMessage(byte[] payload,CommunicationContext communicationContext)
     {
-        var type = message["type"]?.Value<string>();
+        // TODO : give a common signature to handlers , gather them in list 
+        // and do something similar to ClientToAiMessageProcessors
+        // for no: keep in sinch the list with the SWITCH CASE
+        var handledCommands = new List<string> {
+            "error",
+            "response.function_call_arguments.delta",
+            "response.function_call_arguments.done",
+            "response.output_item.done",
+            "response.output_item.added",
+            "response.done",
+            "conversation.item.created",
+            "session.created"
+        };
+        var type = _messageParser.GetCommandName(payload);
+        if(!handledCommands.Contains(type))
+        {
+            return payload;
+        }
+        var message = _messageParser.GetJson(payload, payload.Length);
+        if (message == null) return payload;
+
         switch (type)
         {
             case "error":
@@ -61,8 +82,6 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 break;
             case "session.created":
                 HandleSessionCreated(message);
-                break;
-            case "session.error":
                 break;
         }
         return Utf8Encoding.GetBytes(message.ToString());
@@ -283,10 +302,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
 
 
         buffer = ms.ToArray();
-
-        var jObject = _messageParser.GetJson(buffer, buffer.Length);
-        if (jObject == null) return true;
-        buffer= await AiToClientProcessMessage(jObject,communicationContext);
+        buffer= await AiToClientProcessMessage(buffer, communicationContext);
         if (buffer != null)
         {
             await communicationContext.ClientWebSocket.SendAsync(
