@@ -43,6 +43,7 @@ namespace backendnet.Controllers
 
             if (HttpContext.WebSockets.IsWebSocketRequest)
             {
+                CommunicationContext communicationContext = null;
                 try
                 {
                     using var clientWebSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
@@ -50,17 +51,29 @@ namespace backendnet.Controllers
                     using var aiWebSocket = await ConnectToAi();
                     Console.WriteLine();
                     Console.WriteLine("connected");
+                    communicationContext = new CommunicationContext { ClientWebSocket = clientWebSocket, AiWebSocket = aiWebSocket };
                     Task.Run(async() =>
                     {
-                        await AiToClientForwardLoop(new CommunicationContext { ClientWebSocket = clientWebSocket, AiWebSocket = aiWebSocket });
-
+                        try
+                        {
+                            await AiToClientForwardLoop(communicationContext);
+                        }
+                        catch (Exception ex) { 
+                            Console.WriteLine(ex.ToString());   
+                        }
                     });
-                    await ClientToAiForwardLoop(new CommunicationContext { ClientWebSocket = clientWebSocket, AiWebSocket = aiWebSocket });
+                    await ClientToAiForwardLoop(communicationContext);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"General Error {ex}");
                     throw;
+                }
+                finally { 
+                    if(communicationContext!=null && communicationContext.AiWebSocket.State == WebSocketState.Open)
+                    {
+                        await communicationContext.AiWebSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "client closed the socket", CancellationToken.None);
+                    }
                 }
             }
             else
