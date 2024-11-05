@@ -23,7 +23,7 @@ builder.Services.AddScoped<IMessageParser, MessageParser>();
 builder.Services.AddHttpClient();   
 
 builder.Services.AddOptions<RealTimeAudioSettings>().Bind(builder.Configuration.GetSection(nameof(RealTimeAudioSettings)));
-
+builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
