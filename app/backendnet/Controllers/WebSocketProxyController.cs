@@ -37,6 +37,13 @@ namespace backendnet.Controllers
             _clientToAiMessageProcessors = clientToAiMessageProcessors;
         }
 
+        [Route("/ping")]
+        [HttpGet]
+        public string Ping()
+        {
+            return "pong";
+        }   
+
         [Route("/realtime")]
         public async Task Get()
         {

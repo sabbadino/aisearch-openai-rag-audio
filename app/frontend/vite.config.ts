@@ -1,7 +1,7 @@
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-
+//outbuild build C:\PRODUCT\repos\personal-external\personal\aisearch-openai-rag-audio-forked\app\backend\static
 // https://vitejs.dev/config/
 export default defineConfig({
     plugins: [react()],

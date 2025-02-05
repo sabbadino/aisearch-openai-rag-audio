@@ -54,8 +54,10 @@ export default function useRealTime({
     onReceivedError
 }: Parameters) {
     const wsEndpoint = useDirectAoaiApi
-    ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
-    : useNetBackend ? `https://localhost:7106/realtime` : '/realtime'; // useNetBackend = true call the .net implementation of the middle tier
+        ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
+        : useNetBackend
+          ? `https://rel-time-voice.azurewebsites.net/backend/realtime` // use `https://localhost:7106/realtime` for local development
+          : "/realtime"; // useNetBackend = true call the .net implementation of the middle tier
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {
         onOpen: () => onWebSocketOpen?.(),
