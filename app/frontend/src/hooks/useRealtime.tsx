@@ -13,6 +13,7 @@ import {
 } from "@/types";
 
 type Parameters = {
+    //conversationId: string;
     useDirectAoaiApi?: boolean; // If true, the middle tier will be skipped and the AOAI ws API will be called directly
     useNetBackend?: boolean; // If true, the front end app will point to the .net backend implementation of the middle tier
     aoaiEndpointOverride?: string;
@@ -35,6 +36,7 @@ type Parameters = {
 };
 
 export default function useRealTime({
+    //conversationId,
     useDirectAoaiApi,
     useNetBackend,
     aoaiEndpointOverride,
@@ -56,7 +58,7 @@ export default function useRealTime({
     const wsEndpoint = useDirectAoaiApi
         ? `${aoaiEndpointOverride}/openai/realtime?api-key=${aoaiApiKeyOverride}&deployment=${aoaiModelOverride}&api-version=2024-10-01-preview`
         : useNetBackend
-          ? `https://rel-time-voice.azurewebsites.net/backend/realtime` // use `https://localhost:7106/realtime` for local development
+          ? "https://localhost:7106/realtime" // use `https://rel-time-voice.azurewebsites.net/backend/realtime` for azure web app , use `https://localhost:7106/realtime` for local development
           : "/realtime"; // useNetBackend = true call the .net implementation of the middle tier
 
     const { sendJsonMessage } = useWebSocket(wsEndpoint, {

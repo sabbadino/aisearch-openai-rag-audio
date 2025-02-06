@@ -1,0 +1,2 @@
+Call always this function for any prompt of the user that is not related to casual conversation.
+No matter what the language of the user prompt, always fill the user_query parameter with the text of the user prompt translated to english. 

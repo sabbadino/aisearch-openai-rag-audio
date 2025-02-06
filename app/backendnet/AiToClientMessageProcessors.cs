@@ -22,18 +22,30 @@ public interface IAiToClientMessageProcessors
 public class AiToClientMessageProcessors : IAiToClientMessageProcessors
 {
     private readonly IMessageParser _messageParser;
-    private readonly IWeatherProvider _weatherProvider;
+    private readonly IMscCopilotProvider _mscCopilotProvider;
     private readonly RealTimeAudioSettings _realTimeAudioSettings;
 
-    public AiToClientMessageProcessors(IOptions<RealTimeAudioSettings> realTimeAudioSettings, IMessageParser messageParser, IWeatherProvider weatherProvider)
+    public AiToClientMessageProcessors(IOptions<RealTimeAudioSettings> realTimeAudioSettings, IMessageParser messageParser, IWeatherProvider weatherProvider, IMscCopilotProvider mscCopilotProvider)
     {
         _messageParser = messageParser;
-        _weatherProvider = weatherProvider;
+        _mscCopilotProvider = mscCopilotProvider;
+        
         _realTimeAudioSettings = realTimeAudioSettings.Value;
     }
     private static readonly JsonSerializerOptions Opt = new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true,
+    };
+
+    readonly List<string> _handledCommands = new List<string> {
+        "error",
+        "response.function_call_arguments.delta",
+        "response.function_call_arguments.done",
+        "response.output_item.done",
+        "response.output_item.added",
+        "response.done",
+        "conversation.item.created",
+        "session.created"
     };
     private static readonly Encoding Utf8Encoding = Encoding.UTF8;
     private Dictionary<string, RttoolCall> _tools_pending = new ();
@@ -42,18 +54,10 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
         // TODO : give a common signature to handlers , gather them in list 
         // and do something similar to ClientToAiMessageProcessors
         // for no: keep in sinch the list with the SWITCH CASE
-        var handledCommands = new List<string> {
-            "error",
-            "response.function_call_arguments.delta",
-            "response.function_call_arguments.done",
-            "response.output_item.done",
-            "response.output_item.added",
-            "response.done",
-            "conversation.item.created",
-            "session.created"
-        };
+     //   var x= _messageParser.GetJson(payload, payload.Length);
+
         var type = _messageParser.GetCommandName(payload);
-        if(!handledCommands.Contains(type))
+        if(!_handledCommands.Contains(type))
         {
             return payload;
         }
@@ -81,13 +85,13 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 if (HandleConversationItemCreated(message)) return null;
                 break;
             case "session.created":
-                HandleSessionCreated(message);
+                HandleSessionCreated(message, communicationContext);
                 break;
         }
         return Utf8Encoding.GetBytes(message.ToString());
     }
 
-    private static void HandleSessionCreated(JObject message)
+    private static void HandleSessionCreated(JObject message, CommunicationContext communicationContext)
     {
         var session = message["session"]!;
         //# Hide the instructions, tools and max tokens from clients, if we ever allow client-side 
@@ -96,6 +100,7 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
         session["tools"] = null;
         session["tool_choice"] = "none";
         session["max_response_output_tokens"] = null;
+        communicationContext.SessionId = session["id"]?.Value<string>() ??"";    
     }
 
     private bool HandleConversationItemCreated(JObject message)
@@ -134,37 +139,44 @@ public class AiToClientMessageProcessors : IAiToClientMessageProcessors
                 if (_tools_pending.TryGetValue(callId1, out var rTToolCall))
                 {
                     var toolName = item["name"]?.Value<string>();
-                    if (toolName == "get-current-weather")
+                    if (toolName == AppConstants.FunctionName)
                     {
                         if (item["arguments"]?.Value<string>() is { } args)
                         {
-                            var input = JsonSerializer.Deserialize<GetCurrentWeatherRequest>(args, Opt);
+                            var input = JsonSerializer.Deserialize<AnswerTouUserRequest>(args, Opt);
                             if (input == null)
                             {
-                                Console.WriteLine($"input = JsonSerializer.Deserialize<GetCurrentWeatherRequest>({args})==null");
+                                Console.WriteLine($"input = JsonSerializer.Deserialize<AnswerTouUserRequest>({args})==null");
                             }
                             else
                             {
                                 var text = "";
                                 try
                                 {
-                                    var response = await _weatherProvider.WeatherStackCurrent(input);
-                                    text = JsonEncodedText.Encode(JsonSerializer.Serialize(response)).Value;
-                                    // this is to make appear the data as text in the ui .. but currently it expects the format 
-                                    // of a result from azure ai search
-                                    //var msg = new
+                                    
+                                        input.SessionId = communicationContext.SessionId;   
+                                        var response = await _mscCopilotProvider.GetReply(input);
+                                        text = JsonEncodedText.Encode(JsonSerializer.Serialize(response)).Value;
+                                        // this is to make appear the data as text in the ui .. but currently it expects the format 
+                                        // of a result from azure ai search
+                                        //var msg = new
+                                        //{
+                                        //    type = "extension.middle_tier_tool_response",
+                                        //    previous_item_id = rTToolCall.previous_id,
+                                        //    tool_name = toolName,
+                                        //    tool_result = JsonConvert.SerializeObject(response)
+                                        //};
+                                        //var buffer1 = Utf8Encoding.GetBytes(JsonConvert.SerializeObject(msg));
+                                        //await communicationContext.ClientWebSocket.SendAsync(
+                                        //    new ArraySegment<byte>(buffer1, 0, buffer1.Length),
+                                        //    WebSocketMessageType.Text,
+                                        //    true,
+                                        //    CancellationToken.None);
+                                    
+                                    //else
                                     //{
-                                    //    type = "extension.middle_tier_tool_response",
-                                    //    previous_item_id = rTToolCall.previous_id,
-                                    //    tool_name = toolName,
-                                    //    tool_result = JsonConvert.SerializeObject(response)
-                                    //};
-                                    //var buffer1 = Utf8Encoding.GetBytes(JsonConvert.SerializeObject(msg));
-                                    //await communicationContext.ClientWebSocket.SendAsync(
-                                    //    new ArraySegment<byte>(buffer1, 0, buffer1.Length),
-                                    //    WebSocketMessageType.Text,
-                                    //    true,
-                                    //    CancellationToken.None);
+                                    //    text = JsonEncodedText.Encode(JsonSerializer.Serialize(new { Result = "KO", Reason = "no sessionId found" })).Value;
+                                    //}
                                 }
                                 catch (Exception ex) {
                                     text = JsonEncodedText.Encode(JsonSerializer.Serialize(new { Result = "KO", Reason = ex.Message })).Value;

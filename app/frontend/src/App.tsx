@@ -49,7 +49,9 @@ function App() {
 
             setGroundingFiles(prev => [...prev, ...files]);
         },
-        useNetBackend: true
+        useNetBackend: true,
+        enableInputAudioTranscription: true
+        //conversationId: generateGUID()
     });
 
     const { reset: resetAudioPlayer, play: playAudio, stop: stopAudioPlayer } = useAudioPlayer();

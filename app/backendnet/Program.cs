@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 //builder.Services.AddSingleton(client);
 builder.Services.AddScoped<IAiToClientMessageProcessors, AiToClientMessageProcessors>();
 builder.Services.AddScoped<IWeatherProvider, WeatherProvider>();
+builder.Services.AddScoped<IMscCopilotProvider, MscCopilotProvider>();
 builder.Services.AddScoped<IClientToAiMessageProcessors, ClientToAiMessageProcessors>();
 
 builder.Services.AddScoped<IMessageParser, MessageParser>();

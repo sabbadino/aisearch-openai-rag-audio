@@ -51,7 +51,7 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
 
     private byte[] HandleSessionUpdate(JObject message)
     {
-        var functionName = "get-current-weather";
+        var functionName = AppConstants.FunctionName;
         var realtimeClientEventSessionUpdate = message.ToObject<RealtimeClientEventSessionUpdate>() ?? new();
         realtimeClientEventSessionUpdate.Session.Instructions = File.ReadAllText($"systemMessage-{_realTimeAudioSettings.SystemMessageName}.txt");
         realtimeClientEventSessionUpdate.Session.Temperature = Convert.ToDecimal(_realTimeAudioSettings.Temperature);

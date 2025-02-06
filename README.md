@@ -11,7 +11,7 @@ Add in secrets file
 } 
 </pre> 
 
-The registred function call is get_current_weather (no mock data, it connects to a "real" weather api)
+The registred function call is AppConstants.FunctionName 
 
 # VoiceRAG: An Application Pattern for RAG + Voice Using Azure AI Search and the GPT-4o Realtime API for Audio
 

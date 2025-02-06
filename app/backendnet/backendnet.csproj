@@ -21,7 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="answer_to_user_provider.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="get-current-weather.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="systemMessage-msc-copilot.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="systemMessage-weather.txt">
@@ -36,6 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="answer_to_user_provider.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="get-current-weather.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
