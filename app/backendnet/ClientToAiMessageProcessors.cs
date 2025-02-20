@@ -58,6 +58,7 @@ public class ClientToAiMessageProcessors : IClientToAiMessageProcessors
         realtimeClientEventSessionUpdate.Session.MaxResponseOutputTokens = _realTimeAudioSettings.MaxResponseOutputTokens;
         realtimeClientEventSessionUpdate.Session.ToolChoice = "auto";
         realtimeClientEventSessionUpdate.Session.Voice = "shimmer";
+        realtimeClientEventSessionUpdate.Session.Modalities = ["text", "audio"];
         realtimeClientEventSessionUpdate.Session.Tools =
         [
             new RealtimeClientEventSessionUpdateSessionTools
